@@ -30,7 +30,7 @@ func main() {
 	states := []string{"01", "02", "04", "05", "06", "08", "09", "10", "11", "12", "13", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "44", "45", "46", "47", "48", "49", "50", "51", "53", "54", "55", "56", "60", "66", "69", "72", "78"}
 	for _, state := range states {
 		fmt.Println(state)
-		path := fmt.Sprintf("tract/cb_2015_%s_tract_500k.shp", state)
+		path := fmt.Sprintf("files/cb_2015_%s_tract_500k.shp", state)
 		shapes, _ := maps.LoadShapefile(path)
 		bounds := maps.BoundsForShapes(shapes...)
 
@@ -62,10 +62,10 @@ func main() {
 			"files/cb_2015_us_county_5m.shp",
 			maps.NewShapeTagFilter("STATEFP", state))
 		dc.SetHexColor("#888888")
-		dc.SetLineWidth(1)
+		dc.SetLineWidth(0.5)
 		dc.Stroke()
 
 		// save output
-		dc.SavePNG(fmt.Sprintf("%s.png", state))
+		dc.SavePNG(fmt.Sprintf("out/%s.png", state))
 	}
 }
