@@ -33,7 +33,7 @@ func (m *Map) setTransform() {
 }
 
 func (m *Map) Project(point Point) Point {
-	const scale = 600
+	const scale = 2400
 	point = m.Projection.Project(point)
 	point = Point{point.X * scale, point.Y * -scale}
 	return point
