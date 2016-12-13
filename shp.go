@@ -11,7 +11,7 @@ type Shape struct {
 	Tags map[string]string
 }
 
-func LoadSHP(path string) ([]Shape, error) {
+func LoadShapefile(path string) ([]Shape, error) {
 	file, err := shp.Open(path)
 	if err != nil {
 		return nil, err

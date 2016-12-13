@@ -40,11 +40,24 @@ func (m *Map) Project(point Point) Point {
 }
 
 func (m *Map) DrawShapefile(path string) error {
-	shapes, err := LoadSHP(path)
+	shapes, err := LoadShapefile(path)
 	if err != nil {
 		return err
 	}
 	m.DrawShapes(shapes)
+	return nil
+}
+
+func (m *Map) DrawShapefileFiltered(path string, filter ShapeFilterFunc) error {
+	shapes, err := LoadShapefile(path)
+	if err != nil {
+		return err
+	}
+	for _, shape := range shapes {
+		if filter(shape) {
+			m.DrawShape(shape)
+		}
+	}
 	return nil
 }
 
