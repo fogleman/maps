@@ -1,6 +1,8 @@
 package maps
 
 import (
+	"math"
+
 	"github.com/fogleman/gg"
 	"github.com/qedus/osmpbf"
 )
@@ -30,6 +32,16 @@ func (m *Map) SetTransform() {
 	m.Translate(-center.X, -center.Y)
 	m.Translate(float64(m.Width())/2, float64(m.Height())/2)
 	m.Rotate(Radians(-m.Heading))
+}
+
+func (m *Map) FitBounds(bounds Bounds, margin float64) {
+	m.Center = bounds.Center()
+	m.Zoom = 1
+	size := m.Project(bounds.Max).Sub(m.Project(bounds.Min))
+	zx := (float64(m.Width()) - margin*2) / size.X
+	zy := (float64(m.Height()) - margin*2) / size.Y
+	m.Zoom = math.Abs(math.Min(zx, zy))
+	m.SetTransform()
 }
 
 func (m *Map) Project(point Point) Point {
@@ -68,10 +80,9 @@ func (m *Map) DrawShapes(shapes []Shape) {
 }
 
 func (m *Map) DrawShape(shape Shape) {
-	groups := shape.GetPoints()
-	for _, group := range groups {
+	for _, line := range shape.Lines {
 		m.NewSubPath()
-		for _, pt := range group {
+		for _, pt := range line.Points {
 			point := m.Project(Point{pt.X, pt.Y})
 			m.LineTo(point.X, point.Y)
 		}

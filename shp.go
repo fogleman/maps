@@ -7,8 +7,9 @@ import (
 )
 
 type Shape struct {
-	shp.Shape
-	Tags map[string]string
+	Bounds Bounds
+	Lines  []*Polyline
+	Tags   map[string]string
 }
 
 func LoadShapefile(path string) ([]Shape, error) {
@@ -31,24 +32,25 @@ func LoadShapefile(path string) ([]Shape, error) {
 		for i, name := range names {
 			tags[name] = file.ReadAttribute(n, i)
 		}
-		result = append(result, Shape{shape, tags})
+		lines := getPolylines(shape)
+		bounds := BoundsForPolylines(lines...)
+		result = append(result, Shape{bounds, lines, tags})
 	}
 	return result, nil
 }
 
-func (shape Shape) GetPoints() [][]Point {
-	switch v := shape.Shape.(type) {
+func getPolylines(shape shp.Shape) []*Polyline {
+	var line *shp.PolyLine
+	switch v := shape.(type) {
 	case *shp.PolyLine:
-		return getPoints(v)
+		line = v
 	case *shp.Polygon:
-		line := shp.PolyLine(*v)
-		return getPoints(&line)
+		l := shp.PolyLine(*v)
+		line = &l
+	default:
+		return nil
 	}
-	return nil
-}
-
-func getPoints(line *shp.PolyLine) [][]Point {
-	var result [][]Point
+	var result []*Polyline
 	parts := append(line.Parts, line.NumPoints)
 	for part := 0; part < len(parts)-1; part++ {
 		var points []Point
@@ -58,7 +60,7 @@ func getPoints(line *shp.PolyLine) [][]Point {
 			point := line.Points[i]
 			points = append(points, Point{point.X, point.Y})
 		}
-		result = append(result, points)
+		result = append(result, NewPolyline(points))
 	}
 	return result
 }
