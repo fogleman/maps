@@ -17,23 +17,23 @@ func NewMap(w, h int) *Map {
 	m := Map{}
 	m.Context = gg.NewContext(w, h)
 	m.Projection = NewMercatorProjection()
-	m.Center = Point{-98.35, 39.5}
-	m.Projection = NewLambertAzimuthalEqualAreaProjection(m.Center)
-	m.Zoom = 0
+	m.Center = Point{}
+	m.Zoom = 1
 	m.Heading = 0
-	m.setTransform()
+	m.SetTransform()
 	return &m
 }
 
-func (m *Map) setTransform() {
-	m.Push()
+func (m *Map) SetTransform() {
 	center := m.Project(m.Center)
+	m.Identity()
 	m.Translate(-center.X, -center.Y)
 	m.Translate(float64(m.Width())/2, float64(m.Height())/2)
+	m.Rotate(Radians(-m.Heading))
 }
 
 func (m *Map) Project(point Point) Point {
-	const scale = 2400
+	scale := float64(m.Height()) * m.Zoom
 	point = m.Projection.Project(point)
 	point = Point{point.X * scale, point.Y * -scale}
 	return point
