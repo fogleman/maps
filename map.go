@@ -89,6 +89,17 @@ func (m *Map) DrawShape(shape Shape) {
 	}
 }
 
+func (m *Map) DrawPBF(path string) error {
+	pbf, err := LoadPBF(path)
+	if err != nil {
+		return err
+	}
+	for _, way := range pbf.Ways {
+		m.DrawWay(pbf, way)
+	}
+	return nil
+}
+
 func (m *Map) DrawWay(pbf *PBF, way *osmpbf.Way) {
 	m.NewSubPath()
 	for _, id := range way.NodeIDs {
