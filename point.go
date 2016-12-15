@@ -6,6 +6,10 @@ type Point struct {
 	X, Y float64
 }
 
+func LatLng(lat, lng float64) Point {
+	return Point{lng, lat}
+}
+
 func (a Point) Length() float64 {
 	return math.Hypot(a.X, a.Y)
 }
