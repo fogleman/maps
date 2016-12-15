@@ -1,5 +1,7 @@
 package maps
 
+import "github.com/qedus/osmpbf"
+
 type Bounds struct {
 	Min, Max Point
 }
@@ -37,6 +39,34 @@ func BoundsForShapes(shapes ...Shape) Bounds {
 		result = result.Extend(shape.Bounds)
 	}
 	return result
+}
+
+func BoundsForWay(pbf *PBF, way *osmpbf.Way) Bounds {
+	var points []Point
+	for _, id := range way.NodeIDs {
+		node := pbf.Nodes[id]
+		points = append(points, Point{node.Lon, node.Lat})
+	}
+	return BoundsForPoints(points...)
+}
+
+func BoundsForRelation(pbf *PBF, relation *osmpbf.Relation) Bounds {
+	var points []Point
+	for _, member := range relation.Members {
+		if member.Type == osmpbf.WayType {
+			if way, ok := pbf.Ways[member.ID]; ok {
+				bounds := BoundsForWay(pbf, way)
+				points = append(points, bounds.Min)
+				points = append(points, bounds.Max)
+			}
+		}
+		if member.Type == osmpbf.NodeType {
+			if node, ok := pbf.Nodes[member.ID]; ok {
+				points = append(points, Point{node.Lon, node.Lat})
+			}
+		}
+	}
+	return BoundsForPoints(points...)
 }
 
 func (a Bounds) Extend(b Bounds) Bounds {
