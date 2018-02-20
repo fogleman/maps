@@ -9,15 +9,19 @@ type Projection interface {
 // Mercator
 
 type MercatorProjection struct {
+	InvertY bool
 }
 
 func NewMercatorProjection() Projection {
-	return &MercatorProjection{}
+	return &MercatorProjection{false}
 }
 
 func (p *MercatorProjection) Project(point Point) Point {
 	x := Radians(point.X)
 	y := math.Asinh(math.Tan(Radians(point.Y)))
+	if p.InvertY {
+		y = -y
+	}
 	return Point{x, y}
 }
 
