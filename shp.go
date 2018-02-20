@@ -12,7 +12,7 @@ type Shape struct {
 	Tags   map[string]string
 }
 
-func LoadShapefile(path string, filters ...string) ([]Shape, error) {
+func LoadShapefile(path string, filters ...ShapeFilterFunc) ([]Shape, error) {
 	file, err := shp.Open(path)
 	if err != nil {
 		return nil, err
@@ -41,10 +41,8 @@ func LoadShapefile(path string, filters ...string) ([]Shape, error) {
 		filteredShapes := shapes[:0]
 		for _, shape := range shapes {
 			ok := true
-			for i := 0; i < len(filters); i += 2 {
-				key := filters[i]
-				value := filters[i+1]
-				if shape.Tags[key] != value {
+			for _, f := range filters {
+				if !f(shape) {
 					ok = false
 					break
 				}
