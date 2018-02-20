@@ -12,7 +12,7 @@ type MercatorProjection struct {
 	InvertY bool
 }
 
-func NewMercatorProjection() Projection {
+func NewMercatorProjection() *MercatorProjection {
 	return &MercatorProjection{false}
 }
 
@@ -31,7 +31,7 @@ type LambertAzimuthalEqualAreaProjection struct {
 	Center Point
 }
 
-func NewLambertAzimuthalEqualAreaProjection(center Point) Projection {
+func NewLambertAzimuthalEqualAreaProjection(center Point) *LambertAzimuthalEqualAreaProjection {
 	return &LambertAzimuthalEqualAreaProjection{center}
 }
 
