@@ -12,7 +12,7 @@ type Shape struct {
 	Tags   map[string]string
 }
 
-func LoadShapefile(path string) ([]Shape, error) {
+func LoadShapefile(path string, filters ...string) ([]Shape, error) {
 	file, err := shp.Open(path)
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func LoadShapefile(path string) ([]Shape, error) {
 		names[i] = strings.Trim(field.String(), "\x00")
 	}
 
-	var result []Shape
+	var shapes []Shape
 	for file.Next() {
 		n, shape := file.Shape()
 		tags := make(map[string]string)
@@ -34,9 +34,29 @@ func LoadShapefile(path string) ([]Shape, error) {
 		}
 		lines := getPolylines(shape)
 		bounds := BoundsForPolylines(lines...)
-		result = append(result, Shape{bounds, lines, tags})
+		shapes = append(shapes, Shape{bounds, lines, tags})
 	}
-	return result, nil
+
+	if len(filters) > 0 {
+		filteredShapes := shapes[:0]
+		for _, shape := range shapes {
+			ok := true
+			for i := 0; i < len(filters); i += 2 {
+				key := filters[i]
+				value := filters[i+1]
+				if shape.Tags[key] != value {
+					ok = false
+					break
+				}
+			}
+			if ok {
+				filteredShapes = append(filteredShapes, shape)
+			}
+		}
+		shapes = filteredShapes
+	}
+
+	return shapes, nil
 }
 
 func getPolylines(shape shp.Shape) []*Polyline {
